@@ -1,0 +1,5 @@
+viam-sdk
+numpy
+torch
+torchvision
+pillow
