@@ -54,11 +54,8 @@ The following attributes are available to configure your deepface module:
 | Name                       | Type   | Inclusion    | Default  | Description                                                                                  |
 | -------------------------- | ------ | ------------ | -------  | -------------------------------------------------------------------------------------------- |
 | `path_to_serialized_file`  | string | **Required** |          | FOR NOW: this can only be a TorchScript model                                                |
-| `model_type`               | string | Optional     | `'yunet'`| FOR NOW: `object_detector` or `vision`. This is used for preprocessing.                      |
+| `model_type`               | string | Optional     | `None`| FOR NOW: `object_detector` or `vision`. This is used for preprocessing.                      |
 
-
-
-## IR input support
 
 
 
