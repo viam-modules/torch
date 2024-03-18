@@ -230,12 +230,13 @@ class InputSizeCalculator:
 
     @staticmethod
     def default(layer, output_shape, return_all: bool = False):
-        if output_shape is None:
-            raise NotImplementedError(
-                f"Input size calculation for {type(layer).__name__} is not implemented"
-            )
-        else:
-            return output_shape
+        # if output_shape is None:
+        #     raise NotImplementedError(
+        #         f"Input size calculation for {type(layer).__name__} is not implemented"
+        #     )
+        # else:
+        #     return output_shape
+        return output_shape
 
     def __init__(self):
         self.calculators: Dict[type, callable] = {

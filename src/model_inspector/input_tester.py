@@ -1,10 +1,10 @@
 import torch
 from typing import List, Optional
-from .utils import is_valid_input_shape
+from .utils import is_valid_input_shape, is_defined_shape
 
 
 class InputTester:
-    def __init__(self, model):
+    def __init__(self, model, input_candidate=None):
         """
         A class for testing input shapes on a PyTorch model.
 
@@ -20,6 +20,7 @@ class InputTester:
             various input sizes.
         """
         self.model = model
+        self.input_candidate = input_candidate
         self.working_input_sizes: List[List[int]] = []
         self.not_working_input_sizes: List[List[int]] = []
         self.working_output_sizes: List[List[int]] = []
@@ -67,6 +68,7 @@ class InputTester:
         """
         rgb_size_1 = [3, 224, 224]
         rgb_size_2 = [3, 112, 112]
+        # TODO: add 'weirder' size like [3,113, 217]
 
         grey_size_1 = [1, 224, 224]
         grey_size_2 = [1, 112, 112]
@@ -82,12 +84,7 @@ class InputTester:
         input_sizes += input_sizes_batched
 
         for input_size in input_sizes:
-            output_size = is_valid_input_shape(self.model, input_size)
-            if output_size is not None:
-                self.working_input_sizes.append(input_size)
-                self.working_output_sizes.append(output_size)
-            else:
-                self.not_working_input_sizes.append(input_size)
+            self.test_input_size(input_size)
 
     def try_audio_input(self):
         """
@@ -108,14 +105,21 @@ class InputTester:
         input_sizes += input_sizes_batched
 
         for input_size in input_sizes:
-            output_size = is_valid_input_shape(self.model, input_size)
-            if output_size is not None:
-                self.working_input_sizes.append(input_size)
-                self.working_output_sizes.append(output_size)
-            else:
-                self.not_working_input_sizes.append(input_size)
+            self.test_input_size(input_size)
+
+    def test_input_size(self, input_size):
+        output_size = is_valid_input_shape(self.model, input_size)
+        if output_size is not None:
+            self.working_input_sizes.append(input_size)
+            self.working_output_sizes.append(output_size)
+        else:
+            self.not_working_input_sizes.append(input_size)
 
     def try_inputs(self):
+        if self.input_candidate:
+            if is_defined_shape(self.input_candidate):
+                self.test_input_size(self.input_candidate)
+            self.test_input_size(self.input_candidate)
         self.try_image_input()
         self.try_audio_input()
 
