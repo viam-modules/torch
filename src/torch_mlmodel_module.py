@@ -67,7 +67,8 @@ class TorchMLModelModule(MLModel, Reconfigurable):
             elif type_default == dict:
                 return dict(config.attributes.fields[attribute_name].struct_value)
         
-        self.path_to_model_file = get_attribute_from_config('path_to_model_file', None, str)
+        self.path_to_model_file = get_attribute_from_config('model_file', None, str)
+        self.path_to_label_file = get_attribute_from_config('label_file', None, str)
         self.model_type = get_attribute_from_config('model_type', None, str)
         self.model_family = get_family(self.model_type)
         self.preprocessor = get_preprocessor(self.model_family)
@@ -94,10 +95,14 @@ class TorchMLModelModule(MLModel, Reconfigurable):
         Returns:
             Metadata: The metadata
         """
+        input_info = TensorInfo()
+        extra = {'label' :self.path_to_label_file}
+        output_info = TensorInfo(extra=extra)
+        
         return Metadata(name = "torch-model",
                         type = self.type,
-                        input_info=[TensorInfo()], 
-                        output_info=[TensorInfo()])
+                        input_info=[input_info], 
+                        output_info=[output_info])
     
     async def do_command(self,
                         command: Mapping[str, ValueTypes],

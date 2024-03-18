@@ -59,3 +59,40 @@ The following attributes are available to configure your deepface module:
 
 
 
+### Supported size defining layers
+# Reverting a nn.Sequential:
+
+### Supported size defining layers
+
+def: The input size is directly checkable or easy to find given the attributes of the layer
+
+1. **Linear Layer (Fully Connected Layer)**:
+    - **`torch.nn.Linear(in_features, out_features, bias=True)`**
+2. **RNN (Recurrent Neural Network) Layers**:
+    - **`torch.nn.RNN(input_size, hidden_size, num_layers, ...)`**
+    - **`torch.nn.LSTM(input_size, hidden_size, num_layers, ...)`**
+    - **`torch.nn.GRU(input_size, hidden_size, num_layers, ...)`**
+3. **MLP (Multi-Layer Perceptron) Layers**:
+    - **`torch.nn.Sequential(*args)`**
+4. **Embedding Layer**:
+    - **`torch.nn.Embedding(num_embeddings, embedding_dim)`**
+5. **Transformer Layers**:
+    - **`torch.nn.TransformerEncoderLayer(d_model, nhead)`**
+    - **`torch.nn.TransformerDecoderLayer(d_model, nhead)`**
+6. **Normalization Layers**:
+    - **`torch.nn.LayerNorm(normalized_shape, ...)`**
+    - **`torch.nn.BatchNorm1d(num_features, ...)`**
+    - **`torch.nn.BatchNorm2d(num_features, ...)`**
+    - **`torch.nn.BatchNorm3d(num_features, ...)`**
+7. **Pooling Layers**:
+    - **`torch.nn.MaxPool1d(...)`**
+    - **`torch.nn.MaxPool2d(...)`**
+    - **`torch.nn.MaxPool3d(...)`**
+    - **`torch.nn.AvgPool1d(...)`**
+    - **`torch.nn.AvgPool2d(...)`**
+    - **`torch.nn.AvgPool3d(...)`**
+8. **Flattening Layer**:
+
+### Supported invertible layers
+
+ def: given the output size you can guess the input
