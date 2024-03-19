@@ -80,9 +80,3 @@ print(f"output.shape is {output['output'].shape}")
 
 ## `metadata()`
 
-Given a standalone PyTorch model, the module will try best effort to find metadata using two subsequent tool. 
-
-
-
-### Supported size defining layers
-# Reverting a nn.Sequential:
