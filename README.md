@@ -37,8 +37,7 @@ Navigate to the **Config** tab of your robot’s page in [the Viam app](https://
       "type": "mlmodel",
       "model": "viam:mlmodel:torch",
       "attributes": {
-        "path_to_serialized_file": "/Users/robinin/torch-infer/torch/resnet_18/resnet-18.pt", 
-				"model_type": "vision"
+        "path_to_serialized_file": "examples/resnet_18/resnet-18.pt", 
       }
     }
   ]
@@ -48,51 +47,42 @@ Navigate to the **Config** tab of your robot’s page in [the Viam app](https://
 
 ### Attributes description
 
-The following attributes are available to configure your deepface module:
+The following attributes are available to configure your module:
 
 
-| Name                       | Type   | Inclusion    | Default  | Description                                                                                  |
-| -------------------------- | ------ | ------------ | -------  | -------------------------------------------------------------------------------------------- |
-| `path_to_serialized_file`  | string | **Required** |          | FOR NOW: this can only be a TorchScript model                                                |
-| `model_type`               | string | Optional     | `None`| FOR NOW: `object_detector` or `vision`. This is used for preprocessing.                      |
+| Name         | Type   | Inclusion    | Default | Description                       |
+| ------------ | ------ | ------------ | ------- | --------------------------------- |
+| `model_file` | string | **Required** |         | Path to **standalone** model file |
 
+
+# Methods
+## `infer()`
+```
+infer(input_tensors: Dict[str, NDArray], *, timeout: Optional[float]) -> Dict[str, NDArray]
+```
+
+### Input and output dictionnaries.
+ - For now, only support single input tensor. Key in the input `Dict` must be `'input'`. 
+- For now, only support single output tensor. 
+Key in the output `Dict` is `'output'`. 
+### Example
+
+```python
+my_model = MLModelClient.from_robot(robot, "torch")
+input_image = np.array(Image.open(path_to_input_image), dtype=np.float32)
+input_image = np.transpose(input_image, (2, 0, 1))  # channel first
+input_image = np.expand_dims(input_image, axis=0)  # batch dim
+input_tensor = dict()
+input_tensor["input"] = input_image
+output = await my_model.infer(input_tensor)
+print(f"output.shape is {output['output'].shape}")
+```
+
+## `metadata()`
+
+Given a standalone PyTorch model, the module will try best effort to find metadata using two subsequent tool. 
 
 
 
 ### Supported size defining layers
 # Reverting a nn.Sequential:
-
-### Supported size defining layers
-
-def: The input size is directly checkable or easy to find given the attributes of the layer
-
-1. **Linear Layer (Fully Connected Layer)**:
-    - **`torch.nn.Linear(in_features, out_features, bias=True)`**
-2. **RNN (Recurrent Neural Network) Layers**:
-    - **`torch.nn.RNN(input_size, hidden_size, num_layers, ...)`**
-    - **`torch.nn.LSTM(input_size, hidden_size, num_layers, ...)`**
-    - **`torch.nn.GRU(input_size, hidden_size, num_layers, ...)`**
-3. **MLP (Multi-Layer Perceptron) Layers**:
-    - **`torch.nn.Sequential(*args)`**
-4. **Embedding Layer**:
-    - **`torch.nn.Embedding(num_embeddings, embedding_dim)`**
-5. **Transformer Layers**:
-    - **`torch.nn.TransformerEncoderLayer(d_model, nhead)`**
-    - **`torch.nn.TransformerDecoderLayer(d_model, nhead)`**
-6. **Normalization Layers**:
-    - **`torch.nn.LayerNorm(normalized_shape, ...)`**
-    - **`torch.nn.BatchNorm1d(num_features, ...)`**
-    - **`torch.nn.BatchNorm2d(num_features, ...)`**
-    - **`torch.nn.BatchNorm3d(num_features, ...)`**
-7. **Pooling Layers**:
-    - **`torch.nn.MaxPool1d(...)`**
-    - **`torch.nn.MaxPool2d(...)`**
-    - **`torch.nn.MaxPool3d(...)`**
-    - **`torch.nn.AvgPool1d(...)`**
-    - **`torch.nn.AvgPool2d(...)`**
-    - **`torch.nn.AvgPool3d(...)`**
-8. **Flattening Layer**:
-
-### Supported invertible layers
-
- def: given the output size you can guess the input
