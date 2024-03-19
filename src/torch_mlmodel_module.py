@@ -10,51 +10,55 @@ from viam.resource.base import ResourceBase
 from viam.utils import ValueTypes
 from viam.logging import getLogger
 from .model.model import TorchModel
-from .model.utils import get_family
-from .preprocess.utils import get_preprocessor
+from .model_inspector.inspector import Inspector
 import torch
 
 LOGGER = getLogger(__name__)
 
 
-
 class TorchMLModelModule(MLModel, Reconfigurable):
     MODEL: ClassVar[Model] = Model(ModelFamily("viam", "mlmodel"), "torch")
-     
+
     def __init__(self, name: str):
         super().__init__(name=name)
-        
+
     @classmethod
-    def new_service(cls,
-                 config: ServiceConfig,
-                 dependencies: Mapping[ResourceName, ResourceBase]) -> Self:
+    def new_service(
+        cls, config: ServiceConfig, dependencies: Mapping[ResourceName, ResourceBase]
+    ) -> Self:
         service = cls(config.name)
         service.reconfigure(config, dependencies)
         return service
-    
-                      
+
     @classmethod
     def validate_config(cls, config: ServiceConfig) -> Sequence[str]:
-        serialized_file = config.attributes.fields["path_to_serialized_file"].string_value
-        if serialized_file == '':
+        serialized_file = config.attributes.fields[
+            "path_to_serialized_file"
+        ].string_value
+        if serialized_file == "":
             raise Exception(
-                "a path to serialized model is required for torch mlmoded service module.")
+                "a path to serialized model is required for torch mlmoded service module."
+            )
         return []
 
-    def reconfigure(self,
-            config: ServiceConfig,
-            dependencies: Mapping[ResourceName, ResourceBase]):
-        
-        path_to_serialized_file = config.attributes.fields["path_to_serialized_file"].string_value
-        def get_attribute_from_config(attribute_name:str,  default, of_type=None):
+    def reconfigure(
+        self, config: ServiceConfig, dependencies: Mapping[ResourceName, ResourceBase]
+    ):
+        path_to_serialized_file = config.attributes.fields[
+            "path_to_serialized_file"
+        ].string_value
+
+        def get_attribute_from_config(attribute_name: str, default, of_type=None):
             if attribute_name not in config.attributes.fields:
                 return default
 
             if default is None:
                 if of_type is None:
-                    raise Exception("If default value is None, of_type argument can't be empty")
+                    raise Exception(
+                        "If default value is None, of_type argument can't be empty"
+                    )
                 type_default = of_type
-            else:    
+            else:
                 type_default = type(default)
             if type_default == bool:
                 return config.attributes.fields[attribute_name].bool_value
@@ -66,15 +70,21 @@ class TorchMLModelModule(MLModel, Reconfigurable):
                 return config.attributes.fields[attribute_name].string_value
             elif type_default == dict:
                 return dict(config.attributes.fields[attribute_name].struct_value)
-        
-        self.path_to_model_file = get_attribute_from_config('model_file', None, str)
-        self.path_to_label_file = get_attribute_from_config('label_file', None, str)
-        self.model_type = get_attribute_from_config('model_type', None, str)
-        self.model_family = get_family(self.model_type)
-        self.preprocessor = get_preprocessor(self.model_family)
-        self.torch_model = TorchModel(path_to_serialized_file=path_to_serialized_file) 
-        
-    async def infer(self, input_tensors: Dict[str, NDArray], *, timeout: Optional[float]) -> Dict[str, NDArray]:
+
+        self.path_to_model_file = get_attribute_from_config("model_file", None, str)
+        self.path_to_label_file = get_attribute_from_config("label_file", None, str)
+        self.model_type = get_attribute_from_config("model_type", None, str)
+        self.torch_model = TorchModel(path_to_serialized_file=path_to_serialized_file)
+        self.inspector = Inspector(self.torch_model.model)
+        self.input_shape, self.output_shape = self.inspector.find_metadata()
+        self.input_names = ["input"]
+        self.output_names = ["output"]
+
+        self.type = "idk"
+
+    async def infer(
+        self, input_tensors: Dict[str, NDArray], *, timeout: Optional[float]
+    ) -> Dict[str, NDArray]:
         """Take an already ordered input tensor as an array, make an inference on the model, and return an output tensor map.
 
         Args:
@@ -84,9 +94,9 @@ class TorchMLModelModule(MLModel, Reconfigurable):
             Dict[str, NDArray]: A dictionary of output flat tensors as specified in the metadata
         """
         res = dict()
-        with torch.no_grad(): 
-            preprocessed_inputs = self.preprocessor(input_tensors['input'])  
-            res['output'] = self.torch_model.infer(preprocessed_inputs)
+        with torch.no_grad():
+            single_input = input_tensors[self.input_names[0]]
+            res[self.output_names[0]] = self.torch_model.infer(single_input)
         return res
 
     async def metadata(self, *, timeout: Optional[float]) -> Metadata:
@@ -95,18 +105,29 @@ class TorchMLModelModule(MLModel, Reconfigurable):
         Returns:
             Metadata: The metadata
         """
-        input_info = TensorInfo()
-        extra = {'label' :self.path_to_label_file}
-        output_info = TensorInfo(extra=extra)
-        
-        return Metadata(name = "torch-model",
-                        type = self.type,
-                        input_info=[input_info], 
-                        output_info=[output_info])
-    
-    async def do_command(self,
-                        command: Mapping[str, ValueTypes],
-                        *,
-                        timeout: Optional[float] = None,
-                        **kwargs):
+        input_infos = [
+            TensorInfo(name=input_name, data_type="float32", shape=self.input_shape)
+            for input_name in self.input_names
+        ]
+        output_infos = [
+            TensorInfo(name=output_name, data_type="float32", shape=self.output_shape)
+            for output_name in self.output_names
+        ]
+
+        # TODO: extra = {"label": self.path_to_label_file}
+
+        return Metadata(
+            name="torch-model",
+            type=self.type,
+            input_info=input_infos,
+            output_info=output_infos,
+        )
+
+    async def do_command(
+        self,
+        command: Mapping[str, ValueTypes],
+        *,
+        timeout: Optional[float] = None,
+        **kwargs,
+    ):
         raise NotImplementedError
