@@ -4,13 +4,25 @@ from typing import Dict, Tuple
 
 
 class InputSizeCalculator:
-    """Given a layer returns the input size
-    Everything batched
-    Raises:
-        NotImplementedError: _description_
+    """
 
-    Returns:
-        _type_: _description_
+    Given a layer returns the input size.
+    There are two types of layers. Those whose input shape is known without knowing
+    the output shape, and those whose input shape can't be known without knowing the output shape.
+    From, the former we still extract information about dimensionnality.
+
+
+    Note:
+        Everything unbatched
+
+    Usage:
+         output_shape = InputSizeCalculator.get_input_size(
+                    layer, input_shape
+                )
+
+    Args:
+
+
     """
 
     @staticmethod
@@ -230,6 +242,18 @@ class InputSizeCalculator:
 
     @staticmethod
     def default(layer, output_shape, return_all: bool = False):
+        """
+        Since this serves a best effort to find input shape for model,
+        we assume that layers of unknown types have the same input and output
+        shapes.
+        The input shape then should be tested.
+
+        Args:
+            layer (_type_): _description_
+            output_shape (_type_): _description_
+            return_all (bool, optional): _description_. Defaults to False.
+
+        """
         # if output_shape is None:
         #     raise NotImplementedError(
         #         f"Input size calculation for {type(layer).__name__} is not implemented"

@@ -1,4 +1,4 @@
-from typing import ClassVar, List, Mapping, Sequence, Any, Dict, Optional, Union
+from typing import ClassVar, Mapping, Sequence, Dict, Optional
 from numpy.typing import NDArray
 from typing_extensions import Self
 from viam.services.mlmodel import MLModel, Metadata, TensorInfo

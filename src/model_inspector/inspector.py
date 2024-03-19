@@ -2,7 +2,6 @@ import torch.nn as nn
 import torch
 from .input_size_calculator import InputSizeCalculator
 from .input_tester import InputTester
-from viam.services.mlmodel import MLModel, Metadata, TensorInfo
 from viam.logging import getLogger
 
 LOGGER = getLogger(__name__)
@@ -28,6 +27,16 @@ class Inspector:
             return (input_shape, output_shape)
 
     def reverse_module(self):
+        """
+        Reverse a nn.Module.
+        If the self.model is of type torch.nn.Sequential, self.model.children()
+        returns its layers in reverse orders.
+        Else, it will return layers in the order they were instantiated,
+        which might be different from the order of execution. (see test_input_size_calculator.py)
+
+        Returns:
+            List[int]: input shape candidate.
+        """
         modules = list(self.model.children())
         modules.reverse()  # last layer comes first so need to reverse it
 
@@ -46,7 +55,7 @@ class Inspector:
                 )
                 LOGGER.info(f"For module {module}, the output shape is {output_shape}")
             else:
-                continue  # sometimes some modules are None
+                continue  # sometimes some children are None
 
         return input_shape
 
