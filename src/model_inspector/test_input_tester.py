@@ -1,7 +1,4 @@
 import torch.nn as nn
-import torch
-from inspector import Inspector
-from torch.nn import functional as F
 import unittest
 from input_tester import InputTester
 

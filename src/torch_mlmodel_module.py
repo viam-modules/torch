@@ -32,22 +32,16 @@ class TorchMLModelModule(MLModel, Reconfigurable):
 
     @classmethod
     def validate_config(cls, config: ServiceConfig) -> Sequence[str]:
-        serialized_file = config.attributes.fields[
-            "path_to_serialized_file"
-        ].string_value
+        serialized_file = config.attributes.fields["model_file"].string_value
         if serialized_file == "":
             raise Exception(
-                "a path to serialized model is required for torch mlmoded service module."
+                "model_file can't be empty. model is required for torch mlmoded service module."
             )
         return []
 
     def reconfigure(
         self, config: ServiceConfig, dependencies: Mapping[ResourceName, ResourceBase]
     ):
-        path_to_serialized_file = config.attributes.fields[
-            "path_to_serialized_file"
-        ].string_value
-
         def get_attribute_from_config(attribute_name: str, default, of_type=None):
             if attribute_name not in config.attributes.fields:
                 return default
@@ -74,13 +68,11 @@ class TorchMLModelModule(MLModel, Reconfigurable):
         self.path_to_model_file = get_attribute_from_config("model_file", None, str)
         self.path_to_label_file = get_attribute_from_config("label_file", None, str)
         self.model_type = get_attribute_from_config("model_type", None, str)
-        self.torch_model = TorchModel(path_to_serialized_file=path_to_serialized_file)
+        self.torch_model = TorchModel(path_to_serialized_file=self.path_to_model_file)
         self.inspector = Inspector(self.torch_model.model)
         self.input_shape, self.output_shape = self.inspector.find_metadata()
         self.input_names = ["input"]
         self.output_names = ["output"]
-
-        self.type = "idk"
 
     async def infer(
         self, input_tensors: Dict[str, NDArray], *, timeout: Optional[float]
@@ -118,7 +110,7 @@ class TorchMLModelModule(MLModel, Reconfigurable):
 
         return Metadata(
             name="torch-model",
-            type=self.type,
+            type=self.model_type,
             input_info=input_infos,
             output_info=output_infos,
         )

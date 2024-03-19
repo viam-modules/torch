@@ -38,6 +38,7 @@ class NotSequential2(nn.Module):
 class TestInputs(unittest.TestCase):
     def __init__(self, methodName: str = "runTest") -> None:
         super().__init__(methodName)
+
         self.sequential_model = nn.Sequential(
             nn.Conv2d(1, 20, 5),
             nn.ReLU(),
@@ -92,6 +93,5 @@ class TestInputs(unittest.TestCase):
         self.assertNotEqual(found_input_shape, self.not_valid_input_size)
 
 
-# Running the tests if this script is executed directly
 if __name__ == "__main__":
     unittest.main()

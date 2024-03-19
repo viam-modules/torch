@@ -1,4 +1,3 @@
-import torch
 from typing import List, Optional
 from .utils import is_valid_input_shape, is_defined_shape
 

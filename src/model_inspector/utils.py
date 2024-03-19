@@ -1,5 +1,5 @@
 from torch.nn import Module, Linear
-from typing import Tuple
+from typing import Tuple, List
 import torch
 
 
@@ -30,58 +30,18 @@ def is_valid_input_shape(model, input_shape, add_batch_dimension: bool = False):
     return list(output.size())
 
 
-def is_defined_shape(shape: Tuple[int]):
+def is_defined_shape(shape: Tuple[int]) -> bool:
+    """
+
+    Check if a shape input variable defines a shape or
+    is just information about dimensionnality.
+
+    Args:
+        shape (Tuple[int]):
+
+    Returns:
+        _type_: _description_
+    """
     if shape is None:
         return False
     return -1 not in shape
-
-
-def inspect_layer(layer: Module):
-    if isinstance(layer, Linear):
-        return {
-            "dimensionality": 2,
-            "input_shape": [1, layer.in_features],
-            "output_shape": [1, layer.out_features],
-        }
-
-    dim = 0
-    return dim
-
-
-def map_layer_type_and_dimensionnality(layer: Module):
-    if isinstance(layer, Linear):
-        return 1
-
-
-def dimensionality_unicity(sizes: list):
-    if not sizes:
-        return None
-
-    dimensionality = len(sizes[0])
-    if not all(len(size) == dimensionality for size in sizes):
-        return None
-    return dimensionality
-
-
-def solve_shape(sizes, dimensionality):
-    """
-    Determine the common size for each dimension among given sizes.
-
-    Args:
-    - sizes (list): List of tuples representing sizes in each dimension.
-    - dimensionality (int): Number of dimensions.
-
-    Returns:
-    - list: List containing the common size for each dimension. -1 indicates 'any'.
-    """
-    if not sizes or not sizes[0]:
-        return [-1] * dimensionality
-
-    result = list(sizes[0])
-    for dim_index in range(dimensionality):
-        common_size = sizes[0][dim_index]
-        for size in sizes:
-            if size[dim_index] != common_size:
-                result[dim_index] = -1
-                break
-    return result
