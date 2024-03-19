@@ -65,9 +65,12 @@ class TorchMLModelModule(MLModel, Reconfigurable):
             elif type_default == dict:
                 return dict(config.attributes.fields[attribute_name].struct_value)
 
+        # TODO: Test self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
         self.path_to_model_file = get_attribute_from_config("model_file", None, str)
         self.path_to_label_file = get_attribute_from_config("label_file", None, str)
         self.model_type = get_attribute_from_config("model_type", None, str)
+
         self.torch_model = TorchModel(path_to_serialized_file=self.path_to_model_file)
         self.inspector = Inspector(self.torch_model.model)
         self.input_shape, self.output_shape = self.inspector.find_metadata()
