@@ -2,6 +2,7 @@ import torch.nn as nn
 import torch
 from .input_size_calculator import InputSizeCalculator
 from .input_tester import InputTester
+from viam.services.mlmodel import MLModel, Metadata, TensorInfo
 from viam.logging import getLogger
 
 LOGGER = getLogger(__name__)
@@ -16,15 +17,19 @@ class Inspector:
         self.dimensionality = None
 
     def find_metadata(self):
+        input_info, output_info = [], []
         input_shape_candidate = self.reverse_module()
         self.input_tester = InputTester(self.model, input_shape_candidate)
-        input_shape, output_shape = self.input_tester.get_shapes()
+        input_shapes, output_shapes = self.input_tester.get_shapes()
+        for input_tensor_name, shape in input_shapes.items():
+            input_info.append(TensorInfo(name=input_tensor_name, shape=shape))
 
-        if output_shape is not None:
-            LOGGER.info(
-                f"found input shape: {input_shape} and output shape {output_shape}"
-            )
-            return (input_shape, output_shape)
+        for output_tensor_name, shape in input_shapes.items():
+            output_info.append(TensorInfo(name=output_tensor_name, shape=shape))
+
+        return Metadata(
+            name="torch-cpu", input_info=input_info, output_info=output_info
+        )
 
     def reverse_module(self):
         """
@@ -37,7 +42,7 @@ class Inspector:
         Returns:
             List[int]: input shape candidate.
         """
-        modules = list(self.model.children())
+        modules = list(self.model.model.children())
         modules.reverse()  # last layer comes first so need to reverse it
 
         # TODO: Add output shape from label files
@@ -63,8 +68,6 @@ class Inspector:
         input_tensor = torch.ones(input_shape)
         try:
             output = self.model(input_tensor)
-        except RuntimeError:
-            return None
-        except ValueError:
+        except (RuntimeError, ValueError):
             return None
         return output.size()

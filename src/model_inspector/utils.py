@@ -1,6 +1,8 @@
 from torch.nn import Module, Linear
-from typing import Tuple, List
+from typing import Tuple, Dict, List
+from numpy.typing import NDArray
 import torch
+import numpy as np
 
 
 def is_valid_input_shape(model, input_shape, add_batch_dimension: bool = False):
@@ -27,7 +29,8 @@ def is_valid_input_shape(model, input_shape, add_batch_dimension: bool = False):
         return None
     except ValueError:
         return None
-    return list(output.size())
+    if isinstance(output, torch.Tensor):
+        return list(output.size())
 
 
 def is_defined_shape(shape: Tuple[int]) -> bool:
@@ -45,3 +48,27 @@ def is_defined_shape(shape: Tuple[int]) -> bool:
     if shape is None:
         return False
     return -1 not in shape
+
+
+def output_to_shape_dict(output: Dict[str, NDArray]) -> Dict[str, List[int]]:
+    """takes a model input (Tensor or dict)
+
+    Args:
+        output (Dict[str, NDArray]): _description_
+
+    Raises:
+        ValueError: _description_
+
+    Returns:
+        Dict[str, List[int]]: _description_
+    """
+    result = {}
+    for key, value in output.items():
+        if isinstance(value, np.ndarray):
+            shape = list(value.shape)
+        elif isinstance(value, torch.Tensor):
+            shape = list(value.size())
+        else:
+            raise ValueError(f"can't find shape of type {type(value)}")
+        result[key] = shape
+    return result

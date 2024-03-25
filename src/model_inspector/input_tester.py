@@ -1,5 +1,6 @@
-from typing import List, Optional
-from .utils import is_valid_input_shape, is_defined_shape
+from typing import List, Optional, Dict
+from .utils import is_defined_shape, output_to_shape_dict
+import torch
 
 
 class InputTester:
@@ -20,10 +21,12 @@ class InputTester:
         """
         self.model = model
         self.input_candidate = input_candidate
-        self.working_input_sizes: List[List[int]] = []
-        self.not_working_input_sizes: List[List[int]] = []
-        self.working_output_sizes: List[List[int]] = []
-        self.not_working_output_sizes: List[List[int]] = []
+        self.working_input_sizes = {
+            "input": []
+        }  # input tester only test single tensor inputs
+        self.working_output_sizes: Dict[
+            str, List[List[int]]
+        ] = {}  # eg: {output_0 = [[1,2], [1,2]], output_1 = [[2], [2]]}
 
     @staticmethod
     def dimensionality_unicity(sizes: List[List[int]]) -> Optional[int]:
@@ -37,11 +40,11 @@ class InputTester:
             Optional[int]: The dimensionality if it is unique, otherwise None.
         """
         if not sizes:
-            return None
+            return False
         dimensionality_set = {len(size) for size in sizes}
         if len(dimensionality_set) == 1:
-            return dimensionality_set.pop()
-        return None
+            return True
+        return False
 
     @staticmethod
     def solve_shape(sizes: List[List[int]]):
@@ -106,32 +109,51 @@ class InputTester:
         for input_size in input_sizes:
             self.test_input_size(input_size)
 
-    def test_input_size(self, input_size):
-        output_size = is_valid_input_shape(self.model, input_size)
-        if output_size is not None:
-            self.working_input_sizes.append(input_size)
-            self.working_output_sizes.append(output_size)
-        else:
-            self.not_working_input_sizes.append(input_size)
+    def test_input_size(self, input_size, add_batch_dimension=False):
+        input_array = torch.ones(
+            (input_size)
+        ).numpy()  # i get type issues when using np.ones()
+        input_tensor = {"input": input_array}
+        output = None
+        if add_batch_dimension:
+            input_tensor.unsqueeze(0)
+        try:
+            output = self.model.infer(input_tensor)
+        except (RuntimeError, ValueError, AssertionError) as e:
+            pass
+        if output is not None:
+            self.working_input_sizes["input"].append(input_size)
+
+            outputs_shape = output_to_shape_dict(output)
+            for output, shape in outputs_shape.items():
+                if output in self.working_output_sizes:
+                    self.working_output_sizes[output].append(shape)
+                else:
+                    self.working_output_sizes[output] = [shape]
 
     def try_inputs(self):
         if self.input_candidate:
             if is_defined_shape(self.input_candidate):
                 self.test_input_size(self.input_candidate)
-            self.test_input_size(self.input_candidate)
         self.try_image_input()
         self.try_audio_input()
 
     def get_shapes(self):
         self.try_inputs()
-        if self.dimensionality_unicity(self.working_input_sizes):
-            input_shape = self.solve_shape(self.working_input_sizes)
-        else:
-            raise Exception("dimensionality for valid inputs is not unique")
+        input_shapes, output_shapes = {}, {}
+        for output_tensor_name, sizes in self.working_output_sizes.items():
+            if self.dimensionality_unicity(sizes):
+                output_shapes[output_tensor_name] = self.solve_shape(sizes)
+            else:
+                raise Exception(
+                    f"dimensionality for valid output: {output_tensor_name} is not unique"
+                )
 
-        if self.dimensionality_unicity(self.working_output_sizes):
-            output_shape = self.solve_shape(self.working_output_sizes)
-        else:
-            raise Exception("dimensionality for valid outputs is not unique")
-
-        return input_shape, output_shape
+        for input_tensor_name, sizes in self.working_input_sizes.items():
+            if self.dimensionality_unicity(sizes):
+                input_shapes[input_tensor_name] = self.solve_shape(sizes)
+            else:
+                raise Exception(
+                    f"dimensionality for valid input: {input_tensor_name} is not unique"
+                )
+        return input_shapes, output_shapes

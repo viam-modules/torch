@@ -73,7 +73,7 @@ class TorchMLModelModule(MLModel, Reconfigurable):
 
         self.torch_model = TorchModel(path_to_serialized_file=self.path_to_model_file)
         self.inspector = Inspector(self.torch_model.model)
-        self.input_shape, self.output_shape = self.inspector.find_metadata()
+        self._metadata = self.inspector.find_metadata()
         self.input_names = ["input"]
         self.output_names = ["output"]
 
@@ -88,11 +88,7 @@ class TorchMLModelModule(MLModel, Reconfigurable):
         Returns:
             Dict[str, NDArray]: A dictionary of output flat tensors as specified in the metadata
         """
-        res = dict()
-        with torch.no_grad():
-            single_input = input_tensors[self.input_names[0]]
-            res[self.output_names[0]] = self.torch_model.infer(single_input)
-        return res
+        return self.torch_model.infer(input_tensors)
 
     async def metadata(self, *, timeout: Optional[float]) -> Metadata:
         """Get the metadata (such as name, type, expected tensor/array shape, inputs, and outputs) associated with the ML model.
@@ -100,23 +96,25 @@ class TorchMLModelModule(MLModel, Reconfigurable):
         Returns:
             Metadata: The metadata
         """
-        input_infos = [
-            TensorInfo(name=input_name, data_type="float32", shape=self.input_shape)
-            for input_name in self.input_names
-        ]
-        output_infos = [
-            TensorInfo(name=output_name, data_type="float32", shape=self.output_shape)
-            for output_name in self.output_names
-        ]
+        # input_infos = [
+        #     TensorInfo(name=input_name, data_type="float32", shape=self.input_shape)
+        #     for input_name in self.input_names
+        # ]
+        # output_infos = [
+        #     TensorInfo(name=output_name, data_type="float32", shape=self.output_shape)
+        #     for output_name in self.output_names
+        # ]
 
-        # TODO: extra = {"label": self.path_to_label_file}
+        # # TODO: extra = {"label": self.path_to_label_file}
 
-        return Metadata(
-            name="torch-model",
-            type=self.model_type,
-            input_info=input_infos,
-            output_info=output_infos,
-        )
+        # return Metadata(
+        #     name="torch-model",
+        #     type=self.model_type,
+        #     input_info=input_infos,
+        #     output_info=output_infos,
+        # )
+
+        return self._metadata
 
     async def do_command(
         self,
