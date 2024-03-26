@@ -31,10 +31,10 @@ class TorchMLModelModule(MLModel, Reconfigurable):
 
     @classmethod
     def validate_config(cls, config: ServiceConfig) -> Sequence[str]:
-        serialized_file = config.attributes.fields["model_file"].string_value
-        if serialized_file == "":
+        model_path = config.attributes.fields["model_path"].string_value
+        if model_path == "":
             raise Exception(
-                "model_file can't be empty. model is required for torch mlmoded service module."
+                "model_path can't be empty. model is required for torch mlmoded service module."
             )
         return []
 
@@ -70,7 +70,7 @@ class TorchMLModelModule(MLModel, Reconfigurable):
         label_file = get_attribute_from_config("label_path", None, str)
 
         self.torch_model = TorchModel(path_to_serialized_file=self.path_to_model_file)
-        self.inspector = Inspector(self.torch_model.model)
+        self.inspector = Inspector(self.torch_model)
         self._metadata = self.inspector.find_metadata(label_file)
 
     async def infer(

@@ -18,8 +18,6 @@ class Inspector:
         self.dimensionality = None
 
     def find_metadata(self, label_path: str):
-        if label_path is not None:
-            extra = dict_to_struct({"label": label_path})
         input_info, output_info = [], []
         input_shape_candidate = self.reverse_module()
         self.input_tester = InputTester(self.model, input_shape_candidate)
@@ -27,9 +25,15 @@ class Inspector:
         for input_tensor_name, shape in input_shapes.items():
             input_info.append(TensorInfo(name=input_tensor_name, shape=shape))
 
-        for output_tensor_name, shape in input_shapes.items():
+        for output_tensor_name, shape in output_shapes.items():
             output_info.append(
-                TensorInfo(name=output_tensor_name, shape=shape, extra=extra)
+                TensorInfo(
+                    name=output_tensor_name,
+                    shape=shape,
+                    extra=dict_to_struct({"label": label_path})
+                    if (label_path is not None)
+                    else None,
+                )
             )
 
         return Metadata(
