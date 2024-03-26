@@ -1,7 +1,7 @@
 from typing import ClassVar, Mapping, Sequence, Dict, Optional
 from numpy.typing import NDArray
 from typing_extensions import Self
-from viam.services.mlmodel import MLModel, Metadata, TensorInfo
+from viam.services.mlmodel import MLModel, Metadata
 from viam.module.types import Reconfigurable
 from viam.resource.types import Model, ModelFamily
 from viam.proto.app.robot import ServiceConfig
@@ -11,7 +11,6 @@ from viam.utils import ValueTypes
 from viam.logging import getLogger
 from .model.model import TorchModel
 from .model_inspector.inspector import Inspector
-import torch
 
 LOGGER = getLogger(__name__)
 
@@ -67,16 +66,12 @@ class TorchMLModelModule(MLModel, Reconfigurable):
 
         # TODO: Test self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        self.path_to_model_file = get_attribute_from_config("model_file", None, str)
-        self.path_to_label_file = get_attribute_from_config("label_file", None, str)
-        self.model_type = get_attribute_from_config("model_type", None, str)
+        self.path_to_model_file = get_attribute_from_config("model_path", None, str)
         label_file = get_attribute_from_config("label_path", None, str)
 
         self.torch_model = TorchModel(path_to_serialized_file=self.path_to_model_file)
         self.inspector = Inspector(self.torch_model.model)
         self._metadata = self.inspector.find_metadata(label_file)
-        self.input_names = ["input"]
-        self.output_names = ["output"]
 
     async def infer(
         self, input_tensors: Dict[str, NDArray], *, timeout: Optional[float]
