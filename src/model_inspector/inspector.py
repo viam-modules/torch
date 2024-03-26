@@ -4,6 +4,7 @@ from .input_size_calculator import InputSizeCalculator
 from .input_tester import InputTester
 from viam.services.mlmodel import MLModel, Metadata, TensorInfo
 from viam.logging import getLogger
+from viam.utils import dict_to_struct
 
 LOGGER = getLogger(__name__)
 
@@ -16,7 +17,9 @@ class Inspector:
 
         self.dimensionality = None
 
-    def find_metadata(self):
+    def find_metadata(self, label_path: str):
+        if label_path is not None:
+            extra = dict_to_struct({"label": label_path})
         input_info, output_info = [], []
         input_shape_candidate = self.reverse_module()
         self.input_tester = InputTester(self.model, input_shape_candidate)
@@ -25,7 +28,9 @@ class Inspector:
             input_info.append(TensorInfo(name=input_tensor_name, shape=shape))
 
         for output_tensor_name, shape in input_shapes.items():
-            output_info.append(TensorInfo(name=output_tensor_name, shape=shape))
+            output_info.append(
+                TensorInfo(name=output_tensor_name, shape=shape, extra=extra)
+            )
 
         return Metadata(
             name="torch-cpu", input_info=input_info, output_info=output_info
