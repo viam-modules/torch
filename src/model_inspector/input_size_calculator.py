@@ -1,6 +1,9 @@
 from .utils import is_defined_shape
 import torch.nn as nn
 from typing import Dict, Tuple
+from viam.logging import getLogger
+
+LOGGER = getLogger(__name__)
 
 
 class InputSizeCalculator:
@@ -285,7 +288,7 @@ class InputSizeCalculator:
         calculator = self.calculators.get(layer_type, self.default)
 
         input_shape = calculator(layer, output_shape, return_all)
-        print(
+        LOGGER.info(
             f" For layer type {type(layer).__name__}, with output shape: {output_shape} input shape found is {input_shape}"
         )
         return input_shape

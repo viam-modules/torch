@@ -29,7 +29,7 @@ class InputTester:
         ] = {}  # eg: {output_0 = [[1,2], [1,2]], output_1 = [[2], [2]]}
 
     @staticmethod
-    def dimensionality_unicity(sizes: List[List[int]]) -> Optional[int]:
+    def dimensionality_unicity(sizes: List[List[int]]) -> bool:
         """
         Check if the dimensionality of the input sizes is unique.
 
@@ -119,7 +119,7 @@ class InputTester:
             input_tensor.unsqueeze(0)
         try:
             output = self.model.infer(input_tensor)
-        except (RuntimeError, ValueError, AssertionError) as e:
+        except (RuntimeError, ValueError, AssertionError):
             pass
         if output is not None:
             self.working_input_sizes["input"].append(input_size)

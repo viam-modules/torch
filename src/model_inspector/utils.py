@@ -1,4 +1,3 @@
-from torch.nn import Module, Linear
 from typing import Tuple, Dict, List
 from numpy.typing import NDArray
 import torch

@@ -37,7 +37,8 @@ Navigate to the **Config** tab of your robot’s page in [the Viam app](https://
       "type": "mlmodel",
       "model": "viam:mlmodel:torch",
       "attributes": {
-        "path_to_serialized_file": "examples/resnet_18/resnet-18.pt", 
+        "model_path": "examples/resnet_18/resnet-18.pt", 
+        "label_path": "examples/resnet_18/labels.txt", 
       }
     }
   ]
@@ -52,7 +53,10 @@ The following attributes are available to configure your module:
 
 | Name         | Type   | Inclusion    | Default | Description                       |
 | ------------ | ------ | ------------ | ------- | --------------------------------- |
-| `model_file` | string | **Required** |         | Path to **standalone** model file |
+| `model_path` | string | **Required** |         | Path to **standalone** model file |
+| `label_path` | string | Optional     |         | Path to file with class labels.   |
+
+
 
 
 # Methods
@@ -61,10 +65,6 @@ The following attributes are available to configure your module:
 infer(input_tensors: Dict[str, NDArray], *, timeout: Optional[float]) -> Dict[str, NDArray]
 ```
 
-### Input and output dictionnaries.
- - For now, only support single input tensor. Key in the input `Dict` must be `'input'`. 
-- For now, only support single output tensor. 
-Key in the output `Dict` is `'output'`. 
 ### Example
 
 ```python
