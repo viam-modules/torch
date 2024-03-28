@@ -12,7 +12,7 @@ This is a [Viam module](https://docs.viam.com/extend/modular-resources/) providi
 pip install -r requirements.txt
 ```
 
-## Configure your `mlmodel:torch` vision service
+## Configure your `mlmodel:torch-cpu` vision service
 
 > [!NOTE]  
 > Before configuring your vision service, you must [create a robot](https://docs.viam.com/manage/fleet/robots/#add-a-new-robot).
@@ -35,7 +35,7 @@ Navigate to the **Config** tab of your robot’s page in [the Viam app](https://
     {
       "name": "torch",
       "type": "mlmodel",
-      "model": "viam:mlmodel:torch",
+      "model": "viam:mlmodel:torch-cpu",
       "attributes": {
         "model_path": "examples/resnet_18/resnet-18.pt", 
         "label_path": "examples/resnet_18/labels.txt", 

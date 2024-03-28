@@ -16,7 +16,7 @@ LOGGER = getLogger(__name__)
 
 
 class TorchMLModelModule(MLModel, Reconfigurable):
-    MODEL: ClassVar[Model] = Model(ModelFamily("viam", "mlmodel"), "torch")
+    MODEL: ClassVar[Model] = Model(ModelFamily("viam", "mlmodel"), "torch-cpu")
 
     def __init__(self, name: str):
         super().__init__(name=name)
