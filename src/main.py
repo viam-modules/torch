@@ -16,7 +16,10 @@ async def main():
     Registry.register_resource_creator(
         MLModel.SUBTYPE,
         TorchMLModelModule.MODEL,
-        ResourceCreatorRegistration(TorchMLModelModule.new_service, TorchMLModelModule.validate_config))
+        ResourceCreatorRegistration(
+            TorchMLModelModule.new_service, TorchMLModelModule.validate_config
+        ),
+    )
     module = Module.from_args()
 
     module.add_model_from_registry(MLModel.SUBTYPE, TorchMLModelModule.MODEL)

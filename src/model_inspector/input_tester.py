@@ -37,7 +37,7 @@ class InputTester:
             sizes (List[List[int]]): List of input sizes.
 
         Returns:
-            Optional[int]: The dimensionality if it is unique, otherwise None.
+           bool: True if dimensionality is unique among sizes. Else, False.
         """
         if not sizes:
             return False
@@ -109,14 +109,12 @@ class InputTester:
         for input_size in input_sizes:
             self.test_input_size(input_size)
 
-    def test_input_size(self, input_size, add_batch_dimension=False):
+    def test_input_size(self, input_size):
         input_array = torch.ones(
             (input_size)
         ).numpy()  # i get type issues when using np.ones()
         input_tensor = {"input": input_array}
         output = None
-        if add_batch_dimension:
-            input_tensor.unsqueeze(0)
         try:
             output = self.model.infer(input_tensor)
         except (RuntimeError, ValueError, AssertionError):

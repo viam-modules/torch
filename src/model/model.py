@@ -62,4 +62,4 @@ class TorchModel:
             return res
 
         else:
-            raise TypeError()
+            raise TypeError(f"can't convert output of type {type(output)} to array")
