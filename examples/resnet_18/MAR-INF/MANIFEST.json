@@ -1,0 +1,12 @@
+{
+  "createdOn": "04/05/2021 21:35:21",
+  "runtime": "python",
+  "model": {
+    "modelName": "resnet-18",
+    "serializedFile": "resnet18-f37072fd.pth",
+    "handler": "image_classifier",
+    "modelFile": "model.py",
+    "modelVersion": "1.0"
+  },
+  "archiverVersion": "0.3.0"
+}
