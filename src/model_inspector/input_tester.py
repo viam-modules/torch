@@ -1,5 +1,5 @@
 from typing import List, Optional, Dict
-from .utils import is_defined_shape, output_to_shape_dict
+from model_inspector.utils import is_defined_shape, output_to_shape_dict
 import torch
 
 

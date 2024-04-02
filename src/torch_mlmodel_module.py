@@ -9,8 +9,8 @@ from viam.proto.common import ResourceName
 from viam.resource.base import ResourceBase
 from viam.utils import ValueTypes
 from viam.logging import getLogger
-from .model.model import TorchModel
-from .model_inspector.inspector import Inspector
+from model.model import TorchModel
+from model_inspector.inspector import Inspector
 
 LOGGER = getLogger(__name__)
 

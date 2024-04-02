@@ -3,7 +3,7 @@ import asyncio
 
 from viam.module.module import Module
 from viam.resource.registry import Registry, ResourceCreatorRegistration
-from .torch_mlmodel_module import TorchMLModelModule
+from torch_mlmodel_module import TorchMLModelModule
 from viam.services.mlmodel import MLModel
 
 
