@@ -1,4 +1,4 @@
-from .utils import is_defined_shape
+from model_inspector.utils import is_defined_shape
 import torch.nn as nn
 from typing import Dict, Tuple
 from viam.logging import getLogger

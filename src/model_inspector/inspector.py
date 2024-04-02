@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch
-from .input_size_calculator import InputSizeCalculator
-from .input_tester import InputTester
+from model_inspector.input_size_calculator import InputSizeCalculator
+from model_inspector.input_tester import InputTester
 from viam.services.mlmodel import Metadata, TensorInfo
 from viam.logging import getLogger
 from viam.utils import dict_to_struct
