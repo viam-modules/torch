@@ -3,4 +3,4 @@ numpy
 pyinstaller
 google-api-python-client
 torch==2.2.1
-torchvision
+torchvision==0.16.2
