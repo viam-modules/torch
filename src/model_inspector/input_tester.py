@@ -117,7 +117,7 @@ class InputTester:
         output = None
         try:
             output = self.model.infer(input_tensor)
-        except (RuntimeError, ValueError, AssertionError):
+        except (RuntimeError, ValueError, AssertionError, IndexError):
             pass
         if output is not None:
             self.working_input_sizes["input"].append(input_size)

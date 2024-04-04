@@ -4,20 +4,26 @@ from numpy.typing import NDArray
 import torch.nn as nn
 from collections import OrderedDict
 from viam.logging import getLogger
+import torchvision
 
 LOGGER = getLogger(__name__)
+
+TORCHVISION_HUB = "torchvision://"
 
 
 class TorchModel:
     def __init__(
         self,
         path_to_serialized_file: str,
-        model: nn.Module = None,
+        model: nn.Module = None,  # for testing only
     ) -> None:
         if model is not None:
             self.model = model
         else:
-            self.model = torch.load(path_to_serialized_file)
+            if path_to_serialized_file.startswith(TORCHVISION_HUB):
+                self.get_model(path_to_serialized_file)
+            else:
+                self.model = torch.load(path_to_serialized_file)
         if not isinstance(self.model, nn.Module):
             if isinstance(self.model, OrderedDict):
                 LOGGER.error(
@@ -63,3 +69,16 @@ class TorchModel:
 
         else:
             raise TypeError(f"can't convert output of type {type(output)} to array")
+
+    def get_model(self, path_to_serialized_file: str):
+        model_name = path_to_serialized_file[len(TORCHVISION_HUB) :]
+        if model_name not in torchvision.models.list_models():
+            raise ValueError(
+                f"model {model_name} does not exist on torchvision version {torchvision.__version__}"
+            )
+        else:
+            weights = torchvision.models.get_model_weights(model_name)
+            LOGGER.info(f"Loading model {model_name} from torchvision hub...")
+            self.model = torchvision.models.get_model(
+                model_name, weights=weights.DEFAULT
+            )  # TODO: this is the same as passing weigths.DEFAULT
