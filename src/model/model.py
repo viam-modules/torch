@@ -4,6 +4,7 @@ from numpy.typing import NDArray
 import torch.nn as nn
 from collections import OrderedDict
 from viam.logging import getLogger
+import os
 
 LOGGER = getLogger(__name__)
 
@@ -17,6 +18,13 @@ class TorchModel:
         if model is not None:
             self.model = model
         else:
+            sizeMB = os.stat(path_to_serialized_file).st_size / (1024 * 1024)
+            if sizeMB > 500:
+                LOGGER.warn(
+                    "model file may be large for certain hardware ("
+                    + str(sizeMB)
+                    + "MB)"
+                )
             self.model = torch.load(path_to_serialized_file)
         if not isinstance(self.model, nn.Module):
             if isinstance(self.model, OrderedDict):
