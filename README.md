@@ -17,7 +17,7 @@ pip install -r requirements.txt
 > [!NOTE]  
 > Before configuring your vision service, you must [create a robot](https://docs.viam.com/manage/fleet/robots/#add-a-new-robot).
 
-Navigate to the **Config** tab of your robot’s page in [the Viam app](https://app.viam.com/). Click on the **Services** subtab and click **Create service**. Select the `Vision` type, then select the `deepface_identification` model. Enter a name for your service and click **Create**.
+Navigate to the **Config** tab of your robot’s page in [the Viam app](https://app.viam.com/). Click on the **Services** subtab and click **Create service**. Select the `MLModel` type, then select the `torch-cpi` model. Enter a name for your service and click **Create**.
 
 ### Example
 
@@ -25,10 +25,11 @@ Navigate to the **Config** tab of your robot’s page in [the Viam app](https://
 ```json
 {
     "modules": [
-    {
-      "executable_path": "/Users/robinin/torch-infer/torch/run.sh",
+     {
       "name": "mymodel",
-      "type": "local"
+      "version": "latest",
+      "type": "registry",
+      "module_id": "viam:torch-cpu"
     }
   ],
   "services": [
@@ -77,6 +78,3 @@ input_tensor["input"] = input_image
 output = await my_model.infer(input_tensor)
 print(f"output.shape is {output['output'].shape}")
 ```
-
-## `metadata()`
-
