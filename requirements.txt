@@ -1,5 +1,7 @@
 viam-sdk
+typing-extensions
 numpy
 pyinstaller
 google-api-python-client
+torchvision
 torch==2.2.1
