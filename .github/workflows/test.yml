@@ -1,5 +1,6 @@
 name: Run lint & unit tests
 
+
 on:
   push:
     branches: [ "main" ]
@@ -8,6 +9,7 @@ on:
 
 jobs:
   build:
+
     name: "Run unit tests"
     runs-on: ubuntu-latest
 
@@ -23,3 +25,4 @@ jobs:
 
     - name: Run unit tests
       run: make test
+
