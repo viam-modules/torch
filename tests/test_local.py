@@ -1,17 +1,33 @@
+from google.protobuf.struct_pb2 import Struct
 import torch
 import unittest
 from src.model.model import TorchModel
 from src.model_inspector.inspector import Inspector
+from src.torch_mlmodel_module import TorchMLModelModule
 from viam.services.mlmodel import Metadata
+from viam.proto.app.robot import ComponentConfig
 from torchvision.models.detection import FasterRCNN
 
 from torchvision.models import MobileNet_V2_Weights
 import torchvision
 import os
 from torchvision.models.detection.rpn import AnchorGenerator
+from typing import List, Iterable, Dict, Any, Mapping
+import numpy as np
 
 
-class TestInputs(unittest.TestCase):
+def make_component_config(dictionary: Mapping[str, Any]) -> ComponentConfig:
+    struct = Struct()
+    struct.update(dictionary)
+    return ComponentConfig(attributes=struct)
+
+config = (
+    make_component_config({"model_path": "model path"}),
+    "received only one dimension attribute",
+)
+
+
+class TestInputs(unittest.IsolatedAsyncioTestCase):
     @staticmethod
     def load_resnet_weights():
         return TorchModel(
@@ -52,6 +68,20 @@ class TestInputs(unittest.TestCase):
 
     def __init__(self, methodName: str = "runTest") -> None:
         super().__init__(methodName)
+
+    async def test_validate(self):
+        response = TorchMLModelModule.validate_config(config=config[0])
+        self.assertEqual(response, [])
+
+    async def test_validate_empty_config(self):
+        empty_config = make_component_config({})
+        with self.assertRaises(Exception) as excinfo:
+            await TorchMLModelModule.validate_config(config=empty_config)
+
+        self.assertIn(
+            "model_path can't be empty. model is required for torch mlmoded service module.",
+            str(excinfo.exception)
+        )
 
     def test_error_loading_weights(self):
         with self.assertRaises(TypeError):
@@ -94,6 +124,17 @@ class TestInputs(unittest.TestCase):
                     output_checked = True
                     print(f"Checked {output_name} ")
             self.assertTrue(output_checked)
+
+    def test_infer_method(self):
+        model: TorchModel = self.load_detector_from_torchvision()
+        x = torch.ones(3, 300, 400).unsqueeze(0)
+        output = model.infer({"input_name": x.numpy()})
+        self.assertIsInstance(output, dict)
+
+        # Assert the structure of the output based on wrap_output function
+        for key, value in output.items():
+            self.assertIsInstance(key, str)
+            self.assertIsInstance(value, np.ndarray)
 
 
 if __name__ == "__main__":

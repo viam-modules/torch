@@ -1,10 +1,13 @@
+"""Main runner method of the module"""
+
 import asyncio
 
 
 from viam.module.module import Module
 from viam.resource.registry import Registry, ResourceCreatorRegistration
-from torch_mlmodel_module import TorchMLModelModule
 from viam.services.mlmodel import MLModel
+
+from torch_mlmodel_module import TorchMLModelModule
 
 
 async def main():
@@ -27,4 +30,5 @@ async def main():
 
 
 if __name__ == "__main__":
+
     asyncio.run(main())

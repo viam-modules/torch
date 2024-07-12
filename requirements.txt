@@ -1,6 +1,6 @@
 viam-sdk
 typing-extensions
-numpy
+numpy==1.24.1
 pyinstaller
 google-api-python-client
 torchvision
