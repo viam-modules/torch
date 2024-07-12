@@ -8,8 +8,8 @@ from viam.services.mlmodel import Metadata, TensorInfo
 from viam.logging import getLogger
 from viam.utils import dict_to_struct
 
-from src.model_inspector.input_size_calculator import InputSizeCalculator
-from src.model_inspector.input_tester import InputTester
+from model_inspector.input_size_calculator import InputSizeCalculator
+from model_inspector.input_tester import InputTester
 
 from torch import nn
 import torch
@@ -20,6 +20,7 @@ LOGGER = getLogger(__name__)
 
 class Inspector:
     "Inspector class for analyzing and gathering metadata from a PyTorch model."
+
     def __init__(self, model: nn.Module) -> None:
         # self.summary: ModelStatistics = summary(module, input_size=[1,3, 640,480])
         self.model = model
@@ -85,7 +86,9 @@ class Inspector:
                 output_shape = self.input_size_calculator.get_input_size(
                     module, input_shape
                 )
-                LOGGER.info("For module %s, the output shape is %s", module, output_shape)
+                LOGGER.info(
+                    "For module %s, the output shape is %s", module, output_shape
+                )
             else:
                 continue  # sometimes some children are None
 

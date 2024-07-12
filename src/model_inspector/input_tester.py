@@ -1,18 +1,19 @@
 "A class for testing input shapes on a PyTorch model."
 from typing import List, Optional, Dict
-from src.model_inspector.utils import is_defined_shape, output_to_shape_dict
+from model_inspector.utils import is_defined_shape, output_to_shape_dict
 import torch
 
 
 class InputTester:
-    """This class provides methods to test various input shapes 
-        on a given PyTorch model and collect information
-        about working and non-working input sizes."""
+    """This class provides methods to test various input shapes
+    on a given PyTorch model and collect information
+    about working and non-working input sizes."""
+
     def __init__(self, model, input_candidate=None):
         """
         A class for testing input shapes on a PyTorch model.
 
-        This class provides methods to test various input shapes 
+        This class provides methods to test various input shapes
         on a given PyTorch model and collect information
         about working and non-working input sizes.
 
@@ -20,9 +21,9 @@ class InputTester:
             model (torch.nn.Module): The PyTorch model to be tested.
 
         Note:
-            The try_image_input and try_audio_input methods test the 
+            The try_image_input and try_audio_input methods test the
             model with predefined input sizes for image-like and
-            audio-like data, respectively. The get_shapes method retrieves the final input 
+            audio-like data, respectively. The get_shapes method retrieves the final input
             and output shapes after testing various input sizes.
         """
         self.model = model
@@ -123,7 +124,7 @@ class InputTester:
         output = None
         try:
             output = self.model.infer(input_tensor)
-        except Exception: #pylint: disable=(broad-exception-caught)
+        except Exception:  # pylint: disable=(broad-exception-caught)
             pass
         if output is not None:
             self.working_input_sizes["input"].append(input_size)
@@ -136,7 +137,7 @@ class InputTester:
                     self.working_output_sizes[output] = [shape]
 
     def try_inputs(self):
-        """Test candidate input (if provided), 
+        """Test candidate input (if provided),
         image-like inputs, and audio-like inputs."""
         if self.input_candidate:
             if is_defined_shape(self.input_candidate):

@@ -1,25 +1,36 @@
-from google.protobuf.struct_pb2 import Struct
-import torch
+"Module for unit testing functionalities related to TorchModel and TorchMLModelModule."
+
+from google.protobuf.struct_pb2 import Struct #pylint: disable=(no-name-in-module)
+
 import unittest
-from src.model.model import TorchModel
-from src.model_inspector.inspector import Inspector
-from src.torch_mlmodel_module import TorchMLModelModule
-from viam.services.mlmodel import Metadata
-from viam.proto.app.robot import ComponentConfig
+from torchvision.models.detection.rpn import AnchorGenerator
+
 from torchvision.models.detection import FasterRCNN
 
 from torchvision.models import MobileNet_V2_Weights
 import torchvision
-import os
-from torchvision.models.detection.rpn import AnchorGenerator
-from typing import List, Iterable, Dict, Any, Mapping
+from model.model import TorchModel
+from model_inspector.inspector import Inspector
+from torch_mlmodel_module import TorchMLModelModule
+from viam.services.mlmodel import Metadata
+from viam.proto.app.robot import ComponentConfig
+
+from typing import Any, Mapping
 import numpy as np
+import os
+
+
+
+import torch
+
 
 
 def make_component_config(dictionary: Mapping[str, Any]) -> ComponentConfig:
+    " makes a mock config"
     struct = Struct()
     struct.update(dictionary)
     return ComponentConfig(attributes=struct)
+
 
 config = (
     make_component_config({"model_path": "model path"}),
@@ -28,8 +39,14 @@ config = (
 
 
 class TestInputs(unittest.IsolatedAsyncioTestCase):
+    """
+    Unit tests for validating TorchModel and TorchMLModelModule functionalities.
+    """
     @staticmethod
     def load_resnet_weights():
+        """
+        Load ResNet weights from a serialized file.
+        """
         return TorchModel(
             path_to_serialized_file=os.path.join(
                 "examples", "resnet_18", "resnet18-f37072fd.pth"
@@ -38,6 +55,9 @@ class TestInputs(unittest.IsolatedAsyncioTestCase):
 
     @staticmethod
     def load_standalone_resnet():
+        """
+        Load a standalone ResNet model.
+        """
         return TorchModel(
             path_to_serialized_file=os.path.join(
                 "examples", "resnet_18_scripted", "resnet-18.pt"
@@ -46,6 +66,9 @@ class TestInputs(unittest.IsolatedAsyncioTestCase):
 
     @staticmethod
     def load_detector_from_torchvision():
+        """
+        Load a detector model using torchvision.
+        """
         backbone = torchvision.models.mobilenet_v2(
             weights=MobileNet_V2_Weights.DEFAULT
         ).features
@@ -66,28 +89,40 @@ class TestInputs(unittest.IsolatedAsyncioTestCase):
         model.eval()
         return TorchModel(path_to_serialized_file=None, model=model)
 
-    def __init__(self, methodName: str = "runTest") -> None:
+    def __init__(self, methodName: str = "runTest") -> None: #pylint: disable=(useless-parent-delegation)
         super().__init__(methodName)
 
     async def test_validate(self):
+        """
+        Test validation of configuration using TorchMLModelModule.
+        """
         response = TorchMLModelModule.validate_config(config=config[0])
         self.assertEqual(response, [])
 
     async def test_validate_empty_config(self):
+        """
+        Test validation with an empty configuration.
+        """
         empty_config = make_component_config({})
         with self.assertRaises(Exception) as excinfo:
             await TorchMLModelModule.validate_config(config=empty_config)
 
         self.assertIn(
             "model_path can't be empty. model is required for torch mlmoded service module.",
-            str(excinfo.exception)
+            str(excinfo.exception),
         )
 
     def test_error_loading_weights(self):
+        """
+        Test error handling when loading ResNet weights.
+        """
         with self.assertRaises(TypeError):
             _ = self.load_resnet_weights()
 
     def test_resnet_metadata(self):
+        """
+        Test metadata retrieval for ResNet model.
+        """
         model: TorchModel = self.load_standalone_resnet()
         x = torch.ones(3, 300, 400).unsqueeze(0)
         output = model.infer({"any_input_name_you_want": x.numpy()})
@@ -107,6 +142,9 @@ class TestInputs(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(output_checked)
 
     def test_detector_metadata(self):
+        """
+        Test metadata retrieval for detector model.
+        """
         model: TorchModel = self.load_detector_from_torchvision()
         x = torch.ones(3, 300, 400).unsqueeze(0)
         output = model.infer({"any_input_name_you_want": x.numpy()})
@@ -126,6 +164,9 @@ class TestInputs(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(output_checked)
 
     def test_infer_method(self):
+        """
+        Test inference method of the detector model.
+        """
         model: TorchModel = self.load_detector_from_torchvision()
         x = torch.ones(3, 300, 400).unsqueeze(0)
         output = model.infer({"input_name": x.numpy()})

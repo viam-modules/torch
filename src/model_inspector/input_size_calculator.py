@@ -10,7 +10,7 @@ embedding, normalization, pooling, and convolutional layers.
 from typing import Dict, Tuple
 from viam.logging import getLogger
 from torch import nn
-from src.model_inspector.utils import is_defined_shape
+from model_inspector.utils import is_defined_shape
 
 
 LOGGER = getLogger(__name__)
@@ -312,6 +312,6 @@ class InputSizeCalculator:
             "For layer type %s, with output shape: %s input shape found is %s",
             type(layer).__name__,
             output_shape,
-            input_shape
+            input_shape,
         )
         return input_shape

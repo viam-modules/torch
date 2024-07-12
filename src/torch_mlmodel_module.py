@@ -16,8 +16,8 @@ from viam.proto.common import ResourceName
 from viam.resource.base import ResourceBase
 from viam.utils import ValueTypes
 from viam.logging import getLogger
-from src.model.model import TorchModel
-from src.model_inspector.inspector import Inspector
+from model.model import TorchModel
+from model_inspector.inspector import Inspector
 
 LOGGER = getLogger(__name__)
 
@@ -27,6 +27,7 @@ class TorchMLModelModule(MLModel, Reconfigurable):
     This class integrates a PyTorch model with Viam's MLModel and Reconfigurable interfaces,
     providing functionality to create, configure, and use the model for inference.
     """
+
     MODEL: ClassVar[Model] = Model(ModelFamily("viam", "mlmodel"), "torch-cpu")
 
     def __init__(self, name: str):
@@ -60,6 +61,7 @@ class TorchMLModelModule(MLModel, Reconfigurable):
         self, config: ServiceConfig, dependencies: Mapping[ResourceName, ResourceBase]
     ):
         "Reconfigure the service with the given configuration and dependencies."
+
         # pylint: disable=too-many-return-statements
         def get_attribute_from_config(attribute_name: str, default, of_type=None):
             if attribute_name not in config.attributes.fields:
@@ -92,25 +94,24 @@ class TorchMLModelModule(MLModel, Reconfigurable):
         self.inspector = Inspector(self.torch_model)
         self._metadata = self.inspector.find_metadata(label_file)
 
-
     async def infer(
         self, input_tensors: Dict[str, NDArray], *, timeout: Optional[float]
     ) -> Dict[str, NDArray]:
-        """Take an already ordered input tensor as an array, 
+        """Take an already ordered input tensor as an array,
         make an inference on the model, and return an output tensor map.
 
         Args:
-            input_tensors (Dict[str, NDArray]): 
+            input_tensors (Dict[str, NDArray]):
                 A dictionary of input flat tensors as specified in the metadata
 
         Returns:
-            Dict[str, NDArray]: 
+            Dict[str, NDArray]:
                 A dictionary of output flat tensors as specified in the metadata
         """
         return self.torch_model.infer(input_tensors)
 
     async def metadata(self, *, timeout: Optional[float]) -> Metadata:
-        """Get the metadata (such as name, type, expected tensor/array shape, 
+        """Get the metadata (such as name, type, expected tensor/array shape,
         inputs, and outputs) associated with the ML model.
 
         Returns:

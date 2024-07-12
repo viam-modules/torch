@@ -36,8 +36,7 @@ class TorchModel:
             if size_mb > 500:
                 # pylint: disable=deprecated-method
                 LOGGER.warn(
-                    "model file may be large for certain hardware (%s MB)",
-                    size_mb
+                    "model file may be large for certain hardware (%s MB)", size_mb
                 )
             self.model = torch.load(path_to_serialized_file)
         if not isinstance(self.model, nn.Module):
@@ -47,7 +46,7 @@ class TorchModel:
                     is of type collections.OrderedDict, 
                     which suggests that the provided file 
                     describes weights instead of a standalone model""",
-                    path_to_serialized_file
+                    path_to_serialized_file,
                 )
             raise TypeError(
                 f"the model is of type {type(self.model)} instead of nn.Module type"
