@@ -1,4 +1,5 @@
-name: Run lint
+name: Run lint & unit tests
+
 
 on:
   push:
@@ -8,7 +9,8 @@ on:
 
 jobs:
   build:
-    name: "Run lint"
+
+    name: "Run unit tests"
     runs-on: ubuntu-latest
 
     steps:
@@ -20,3 +22,7 @@ jobs:
     - name: Run lint
       run: |
         make lint
+
+    - name: Run unit tests
+      run: make test
+

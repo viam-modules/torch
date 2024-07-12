@@ -1,23 +1,30 @@
+"A class for testing input shapes on a PyTorch model."
 from typing import List, Optional, Dict
 from model_inspector.utils import is_defined_shape, output_to_shape_dict
 import torch
 
 
 class InputTester:
+    """This class provides methods to test various input shapes
+    on a given PyTorch model and collect information
+    about working and non-working input sizes."""
+
     def __init__(self, model, input_candidate=None):
         """
         A class for testing input shapes on a PyTorch model.
 
-        This class provides methods to test various input shapes on a given PyTorch model and collect information
+        This class provides methods to test various input shapes
+        on a given PyTorch model and collect information
         about working and non-working input sizes.
 
         Args:
             model (torch.nn.Module): The PyTorch model to be tested.
 
         Note:
-            The try_image_input and try_audio_input methods test the model with predefined input sizes for image-like and
-            audio-like data, respectively. The get_shapes method retrieves the final input and output shapes after testing
-            various input sizes.
+            The try_image_input and try_audio_input methods test the
+            model with predefined input sizes for image-like and
+            audio-like data, respectively. The get_shapes method retrieves the final input
+            and output shapes after testing various input sizes.
         """
         self.model = model
         self.input_candidate = input_candidate
@@ -70,7 +77,6 @@ class InputTester:
         """
         rgb_size_1 = [3, 224, 224]
         rgb_size_2 = [3, 112, 112]
-        # TODO: add 'weirder' size like [3,113, 217]
 
         grey_size_1 = [1, 224, 224]
         grey_size_2 = [1, 112, 112]
@@ -110,6 +116,7 @@ class InputTester:
             self.test_input_size(input_size)
 
     def test_input_size(self, input_size):
+        "Test a specific input size on the model."
         input_array = torch.ones(
             (input_size)
         ).numpy()  # i get type issues when using np.ones()
@@ -117,7 +124,7 @@ class InputTester:
         output = None
         try:
             output = self.model.infer(input_tensor)
-        except Exception:
+        except Exception:  # pylint: disable=(broad-exception-caught)
             pass
         if output is not None:
             self.working_input_sizes["input"].append(input_size)
@@ -130,6 +137,8 @@ class InputTester:
                     self.working_output_sizes[output] = [shape]
 
     def try_inputs(self):
+        """Test candidate input (if provided),
+        image-like inputs, and audio-like inputs."""
         if self.input_candidate:
             if is_defined_shape(self.input_candidate):
                 self.test_input_size(self.input_candidate)
@@ -137,6 +146,7 @@ class InputTester:
         self.try_audio_input()
 
     def get_shapes(self):
+        "Perform tests on all inputs and retrieve the final input and output shapes."
         self.try_inputs()
         input_shapes, output_shapes = {}, {}
         for output_tensor_name, sizes in self.working_output_sizes.items():

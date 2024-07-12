@@ -1,7 +1,9 @@
+"Utility functions for model inspection and input shape validation."
+
 from typing import Tuple, Dict, List
 from numpy.typing import NDArray
-import torch
 import numpy as np
+import torch
 
 
 def is_valid_input_shape(model, input_shape, add_batch_dimension: bool = False):
@@ -10,12 +12,15 @@ def is_valid_input_shape(model, input_shape, add_batch_dimension: bool = False):
 
     Args:
         model (torch.nn.Module): The PyTorch model to validate the input shape for.
-        input_shape (tuple): The shape of the input tensor. It should be in the format (C, H, W) for image-like data,
-                             where C is the number of channels, H is the height, and W is the width.
-        add_batch_dimension (bool, optional): Whether to add a batch dimension to the input tensor. Default is False.
+        input_shape (tuple): The shape of the input tensor.
+                            It should be in the format (C, H, W) for image-like data,
+                            where C is the number of channels, H is the height, and W is the width.
+        add_batch_dimension (bool, optional):
+                            Whether to add a batch dimension to the input tensor. Default is False.
 
     Returns:
-        list or None: A list representing the shape of the output tensor if the input shape is valid for the model,
+        list or None: A list representing the shape of the output tensor
+                    if the input shape is valid for the model,
                       or None if an exception occurs during the model evaluation.
     """
 
@@ -29,7 +34,9 @@ def is_valid_input_shape(model, input_shape, add_batch_dimension: bool = False):
     except ValueError:
         return None
     if isinstance(output, torch.Tensor):
-        return list(output.size())
+        out = list(output.size())
+        return out
+    return None
 
 
 def is_defined_shape(shape: Tuple[int]) -> bool:
