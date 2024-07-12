@@ -9,4 +9,4 @@ lint:
 build:
 	./build.sh
 dist/archive.tar.gz:
-	tar -czvf dist/archive.tar.gz dist/__main__  
+	tar -czvf dist/archive.tar.gz dist/main
