@@ -1,18 +1,22 @@
 {
-    "module_id": "viam:torch-cpu",
-    "visibility": "public",
-    "url": "https://github.com/viam-labs/torch",
-    "description": "Viam ML Module service serving PyTorch models.",
-    "models": [
-      {
-        "api": "rdk:service:mlmodel",
-        "model": "viam:mlmodel:torch-cpu"
-      }
-    ],
-    "build": {
-        "build": "./build.sh", 
-        "path": "dist/archive.tar.gz", 
-        "arch": ["linux/arm64", "linux/amd64"] 
-      },
-    "entrypoint": "dist/main"
+  "module_id": "viam:torch-cpu",
+  "visibility": "public",
+  "url": "https://github.com/viam-labs/torch",
+  "description": "Viam ML Module service serving PyTorch models.",
+  "models": [
+    {
+      "api": "rdk:service:mlmodel",
+      "model": "viam:mlmodel:torch-cpu"
+    }
+  ],
+  "build": {
+    "build": "./build.sh",
+    "path": "dist/archive.tar.gz",
+    "arch": [
+      "linux/arm64",
+      "linux/amd64",
+      "darwin/arm64"
+    ]
+  },
+  "entrypoint": "dist/main"
 }
