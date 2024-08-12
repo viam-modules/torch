@@ -1,5 +1,4 @@
 # VIAM PYTORCH ML MODEL 
-***in progress***
 
 This is a [Viam module](https://docs.viam.com/extend/modular-resources/) providing a mlmodel service for PyTorch model
 
