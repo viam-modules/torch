@@ -95,7 +95,11 @@ class TorchMLModelModule(MLModel, Reconfigurable):
         self._metadata = self.inspector.find_metadata(label_file)
 
     async def infer(
-        self, input_tensors: Dict[str, NDArray], *, timeout: Optional[float]
+        self,
+        input_tensors: Dict[str, NDArray],
+        *,
+        extra: Optional[Mapping[str, ValueTypes]],
+        timeout: Optional[float],
     ) -> Dict[str, NDArray]:
         """Take an already ordered input tensor as an array,
         make an inference on the model, and return an output tensor map.
@@ -110,7 +114,12 @@ class TorchMLModelModule(MLModel, Reconfigurable):
         """
         return self.torch_model.infer(input_tensors)
 
-    async def metadata(self, *, timeout: Optional[float]) -> Metadata:
+    async def metadata(
+            self,
+            *,
+            extra: Optional[Mapping[str, ValueTypes]],
+            timeout: Optional[float],
+    ) -> Metadata:
         """Get the metadata (such as name, type, expected tensor/array shape,
         inputs, and outputs) associated with the ML model.
 

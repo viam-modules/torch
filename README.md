@@ -56,7 +56,14 @@ The following attributes are available to configure your module:
 | `model_path` | string | **Required** |         | Path to **standalone** model file |
 | `label_path` | string | Optional     |         | Path to file with class labels.   |
 
+### Example configuration
 
+```json
+{
+    "model_path": "${packages.ml_model.myMLModel}/my_model.pt", 
+    "label_path": "${packages.ml_model.myMLModel}/labels.txt"
+}
+```
 
 
 # Methods
