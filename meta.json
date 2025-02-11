@@ -8,7 +8,7 @@
       "api": "rdk:service:mlmodel",
       "model": "viam:mlmodel:torch-cpu",
       "markdown_link": "README.md#example-configuration",
-      "short_description": "An ML Model Service that can run PyTorch models of a standard format"
+      "short_description": "An ML Model Service that can run PyTorch models in a standard format"
     }
   ],
   "build": {

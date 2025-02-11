@@ -60,8 +60,8 @@ The following attributes are available to configure your module:
 
 ```json
 {
-    "model_path": "${packages.ml_model.[myMLModel]}/my_model.pt", 
-    "label_path": "${packages.ml_model.[myMLModel]}/labels.txt"
+    "model_path": "${packages.ml_model.myMLModel}/my_model.pt", 
+    "label_path": "${packages.ml_model.myMLModel}/labels.txt"
 }
 ```
 
