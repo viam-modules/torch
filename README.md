@@ -38,7 +38,7 @@ Navigate to the **Config** tab of your robot’s page in [the Viam app](https://
       "model": "viam:mlmodel:torch-cpu",
       "attributes": {
         "model_path": "examples/resnet_18/resnet-18.pt", 
-        "label_path": "examples/resnet_18/labels.txt", 
+        "label_path": "examples/resnet_18/labels.txt"
       }
     }
   ]
